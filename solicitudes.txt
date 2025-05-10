@@ -1,0 +1,4 @@
+P, Operating Systems, 2233
+R, Data Bases, 2234
+D, Programming Languages, 2240
+Q, Salir, 0
