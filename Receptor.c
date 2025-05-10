@@ -132,9 +132,14 @@ int main(int argc, char *argv[]) {
 
     char linea[MAX_LINE];
     while (!terminar && read(fd, linea, sizeof(linea)) > 0) {
-        procesar_linea(linea);
+        char *line = strtok(linea, "\n");
+        while (line != NULL) {
+            procesar_linea(line);
+            line = strtok(NULL, "\n");
+        }
         memset(linea, 0, sizeof(linea));
     }
+
 
     pthread_join(aux_thread, NULL);
     pthread_join(consola_thread, NULL);
