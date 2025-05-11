@@ -99,6 +99,8 @@ void procesar_linea(char* linea) {
 int main(int argc, char *argv[]) {
     char *pipe_name = NULL;
     int opt;
+    int fd;
+    char linea[MAX_LINE]
     char *archivoBD = NULL;
     char *archivoSalida = NULL;
 
@@ -116,21 +118,30 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    int fd = open(pipe_name, O_RDONLY);
+    // Cargar la base de datos desde archivo
+    if (cargar_base_datos(archivoBD) == -1) {
+        perror("No se pudo cargar la base de datos");
+        exit(1);
+    }
+
+    // Abrir pipe para lectura
+    fd = open(pipe_name, O_RDONLY);
     if (fd == -1) {
         perror("Error abriendo pipe");
         exit(1);
     }
 
+    // Inicializar sincronización
     sem_init(&empty, 0, N);
     sem_init(&full, 0, 0);
     pthread_mutex_init(&mutex, NULL);
 
+    // Crear hilos
     pthread_t aux_thread, consola_thread;
     pthread_create(&aux_thread, NULL, hilo_auxiliar, NULL);
     pthread_create(&consola_thread, NULL, hilo_consola, NULL);
 
-    char linea[MAX_LINE];
+    // Leer del pipe y procesar línea por línea
     while (!terminar && read(fd, linea, sizeof(linea)) > 0) {
         char *line = strtok(linea, "\n");
         while (line != NULL) {
@@ -140,10 +151,17 @@ int main(int argc, char *argv[]) {
         memset(linea, 0, sizeof(linea));
     }
 
-
+    // Esperar fin de hilos
     pthread_join(aux_thread, NULL);
     pthread_join(consola_thread, NULL);
 
+    // Guardar base de datos si se especificó
+    if (archivoSalida) {
+        guardar_base_datos(archivoSalida);
+        printf("[RP] Base de datos guardada en %s\n", archivoSalida);
+    }
+
+    // Limpiar
     close(fd);
     sem_destroy(&empty);
     sem_destroy(&full);
