@@ -93,19 +93,26 @@ void procesar_linea(char* linea) {
     Peticion p;
     sscanf(linea, " %c, %[^,], %d", &p.tipo, p.libro, &p.isbn);
 
-    if (verbose) printf("[RP] Recibido: %s", linea);
+    if (verbose) printf("[RP] Recibido: %s\n", linea);
 
     if (p.tipo == 'D' || p.tipo == 'R') {
         publicar_en_buffer(p);
         printf("[RP] Aceptado %c para %s\n", p.tipo, p.libro);
     } else if (p.tipo == 'P') {
-        // Préstamo: acceso directo a BD
-        printf("[RP] Procesando préstamo de %s\n", p.libro);
-        // Lógica de disponibilidad en base de datos...
+        int r = prestar_libro(p.isbn);
+        if (r == -1) {
+            printf("[RP] Error: El libro con ISBN %d no existe\n", p.isbn);
+        } else if (r == 0) {
+            printf("[RP] El libro con ISBN %d está agotado\n", p.isbn);
+        } else {
+            printf("[RP] Procesando préstamo de %s\n", p.libro);
+        }
     } else if (p.tipo == 'Q') {
         printf("[RP] PS indica salida\n");
+        terminar = 1;
     }
 }
+
 
 int main(int argc, char *argv[]) {
     char *pipe_name = NULL;
