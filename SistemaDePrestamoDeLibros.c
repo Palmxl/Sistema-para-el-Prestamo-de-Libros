@@ -1,7 +1,18 @@
-/*
-Membrete
-
-*/
+/******************************************************
+Integrantes: 
+    - Juan Martín Sánchez
+    - Juan Sebastián Tellez
+    - Nathalia Ramírez
+    - Juan Esteban Camargo
+    - Santiago Martínez
+Materia: Sistemas Operativos
+Profesor: John Jairo Corredor
+Proyecto: Sistema para el préstamo de libros
+Descripción: 
+    Módulo encargado de la gestión de la base de datos de libros. Implementa funciones para cargar los libros desde un archivo,
+    procesar préstamos (prestar_libro), devoluciones (devolver_libro) y renovaciones (renovar_libro), así como guardar el estado actualizado en un archivo de salida.
+    Internamente maneja estructuras para representar libros y ejemplares.
+******************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

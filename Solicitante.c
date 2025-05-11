@@ -1,7 +1,18 @@
-/*
-Membrete
-
-*/
+/******************************************************
+Integrantes: 
+    - Juan Martín Sánchez
+    - Juan Sebastián Tellez
+    - Nathalia Ramírez
+    - Juan Esteban Camargo
+    - Santiago Martínez
+Materia: Sistemas Operativos
+Profesor: John Jairo Corredor
+Proyecto: Sistema para el préstamo de libros
+Descripción: 
+    Contiene la implementación del proceso solicitante (PS), encargado de enviar solicitudes al proceso 
+    receptor. Soporta dos modos de entrada: modo interactivo (menú) y desde un archivo de texto. 
+    Cada solicitud (préstamo, renovación, devolución o salida) es enviada a través de un pipe nominal hacia el receptor.
+******************************************************/
 
 #include "SistemaDePrestamoDeLibros.h"
 #include <stdio.h>

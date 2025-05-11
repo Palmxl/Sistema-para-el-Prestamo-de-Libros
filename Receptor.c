@@ -1,7 +1,18 @@
-/*
-Membrete
-
-*/
+/******************************************************
+Integrantes: 
+    - Juan Martín Sánchez
+    - Juan Sebastián Tellez
+    - Nathalia Ramírez
+    - Juan Esteban Camargo
+    - Santiago Martínez
+Materia: Sistemas Operativos
+Profesor: John Jairo Corredor
+Proyecto: Sistema para el préstamo de libros
+Descripción: 
+    Contiene la lógica del proceso receptor (RP), que recibe solicitudes desde los procesos solicitantes. 
+    Gestiona directamente los préstamos (P) y delega las renovaciones (R) y devoluciones (D) a un hilo auxiliar mediante un buffer circular sincronizado con semáforos. 
+    También posee un hilo de consola que permite cerrar el sistema (s) o generar un reporte (r). Al finalizar, puede guardar el estado final de la base de datos.
+******************************************************/
 
 #include "SistemaDePrestamoDeLibros.h"
 #include <stdio.h>
