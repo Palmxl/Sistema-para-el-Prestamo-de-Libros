@@ -95,7 +95,10 @@ Libro* buscar_libro(int isbn) {
 
 int prestar_libro(int isbn) {
     Libro *libro = buscar_libro(isbn);
-    if (!libro) return -1;
+    if (!libro) {
+        printf("[DB] Error: No se encontró el libro con ISBN %d\n", isbn);
+        return -1;
+    }
 
     for (int i = 0; i < libro->cantidad; i++) {
         if (libro->ejemplares[i].estado == 'D') {
@@ -104,6 +107,8 @@ int prestar_libro(int isbn) {
             return 1;
         }
     }
+
+    printf("[DB] No hay ejemplares disponibles para %s\n", libro->nombre);
     return 0;
 }
 
