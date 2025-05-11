@@ -14,8 +14,8 @@ Descripción:
     Es utilizado por los demás módulos para interactuar con la base de datos.
 ******************************************************/
 
-#ifndef SistemaDePrestamoDeLibros_H
-#define SistemaDePrestamoDeLibros_H
+#ifndef SISTEMA_PRESTAMO_H
+#define SISTEMA_PRESTAMO_H
 
 int cargar_base_datos(const char *archivo);
 int guardar_base_datos(const char *archivo);

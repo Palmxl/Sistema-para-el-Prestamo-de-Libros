@@ -23,20 +23,25 @@ Descripción:
 
 #define MAX_LINE 256
 
-void enviar_peticion(int fd, char *operacion, char *libro, int isbn) {
+void enviar_peticion(int fd, char operacion, char *libro, int isbn) {
     char mensaje[MAX_LINE];
-    snprintf(mensaje, MAX_LINE, "%s,%s,%d\n", operacion, libro, isbn);
+    snprintf(mensaje, MAX_LINE, "%c,%s,%d\n", operacion, libro, isbn);
     write(fd, mensaje, strlen(mensaje));
 }
 
 void menu_interactivo(int fd) {
-    char op, nombre[100];
+    char op;
+    char nombre[100];
     int isbn;
 
     while (1) {
         printf("Operación (P: Préstamo, R: Renovación, D: Devolución, Q: Salir): ");
         scanf(" %c", &op);
-        if (op == 'Q') break;
+
+        if (op == 'Q') {
+            enviar_peticion(fd, op, "Salir", 0);
+            break;
+        }
 
         printf("Nombre del libro: ");
         scanf(" %[^\n]", nombre);
@@ -44,7 +49,7 @@ void menu_interactivo(int fd) {
         printf("ISBN: ");
         scanf("%d", &isbn);
 
-        enviar_peticion(fd, &op, nombre, isbn);
+        enviar_peticion(fd, op, nombre, isbn);
     }
 }
 
@@ -54,10 +59,10 @@ void leer_archivo_y_enviar(const char *archivo, int fd) {
         perror("Archivo no encontrado");
         exit(1);
     }
+
     char linea[MAX_LINE];
     while (fgets(linea, sizeof(linea), f)) {
         write(fd, linea, strlen(linea));
-        if (linea[0] == 'Q') break;
     }
     fclose(f);
 }

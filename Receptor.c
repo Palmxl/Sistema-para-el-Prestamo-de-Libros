@@ -14,7 +14,6 @@ Descripción:
     También posee un hilo de consola que permite cerrar el sistema (s) o generar un reporte (r). Al finalizar, puede guardar el estado final de la base de datos.
 ******************************************************/
 
-#include "SistemaDePrestamoDeLibros.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,43 +21,43 @@ Descripción:
 #include <unistd.h>
 #include <fcntl.h>
 #include <semaphore.h>
+#include "SistemaDePrestamoDeLibros.h"
 
 #define MAX_LINE 256
-#define N 10 // Tamaño del buffer
+#define N 10
 
 typedef struct {
-    char tipo;  // 'D' o 'R'
+    char tipo;
     char libro[100];
     int isbn;
 } Peticion;
 
 Peticion buffer[N];
 int in = 0, out = 0;
-
 sem_t empty, full;
 pthread_mutex_t mutex;
 
 int verbose = 0;
 int terminar = 0;
 
-// Simula la escritura en la base de datos
 void procesar_peticion(Peticion p) {
-    printf("[DB] Procesando %c - %s (%d)\n", p.tipo, p.libro, p.isbn);
-    // Aquí va la lógica para modificar el archivo de base de datos
-    sleep(1);
+    if (p.tipo == 'D') {
+        printf("[DB] Procesando D - %s (%d)\n", p.libro, p.isbn);
+        devolver_libro(p.isbn);
+    } else if (p.tipo == 'R') {
+        printf("[DB] Procesando R - %s (%d)\n", p.libro, p.isbn);
+        renovar_libro(p.isbn);
+    }
 }
 
 void* hilo_auxiliar(void* arg) {
-    while (!terminar) {
-        sem_wait(&full);
+    while (!terminar || sem_trywait(&full) == 0) {
+        if (!terminar) sem_wait(&full);
         pthread_mutex_lock(&mutex);
-
         Peticion p = buffer[out];
         out = (out + 1) % N;
-
         pthread_mutex_unlock(&mutex);
         sem_post(&empty);
-
         procesar_peticion(p);
     }
     return NULL;
@@ -71,8 +70,7 @@ void* hilo_consola(void* arg) {
         if (comando == 's') {
             terminar = 1;
         } else if (comando == 'r') {
-            printf("[REPORTE] (Simulado)\n");
-            // Aquí iría la lógica para imprimir el estado de los libros
+            printf("[REPORTE] Simulado: mostrar operaciones realizadas\n");
         }
     }
     return NULL;
@@ -81,17 +79,15 @@ void* hilo_consola(void* arg) {
 void publicar_en_buffer(Peticion p) {
     sem_wait(&empty);
     pthread_mutex_lock(&mutex);
-
     buffer[in] = p;
     in = (in + 1) % N;
-
     pthread_mutex_unlock(&mutex);
     sem_post(&full);
 }
 
 void procesar_linea(char* linea) {
     Peticion p;
-    sscanf(linea, " %c, %[^,], %d", &p.tipo, p.libro, &p.isbn);
+    sscanf(linea, " %c,%[^,],%d", &p.tipo, p.libro, &p.isbn);
 
     if (verbose) printf("[RP] Recibido: %s\n", linea);
 
@@ -113,14 +109,10 @@ void procesar_linea(char* linea) {
     }
 }
 
-
 int main(int argc, char *argv[]) {
-    char *pipe_name = NULL;
+    char *pipe_name = NULL, *archivoBD = NULL, *archivoSalida = NULL;
     int opt;
-    int fd;
     char linea[MAX_LINE];
-    char *archivoBD = NULL;
-    char *archivoSalida = NULL;
 
     while ((opt = getopt(argc, argv, "p:f:s:v")) != -1) {
         switch (opt) {
@@ -136,30 +128,25 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    // Cargar la base de datos desde archivo
     if (cargar_base_datos(archivoBD) == -1) {
         perror("No se pudo cargar la base de datos");
         exit(1);
     }
 
-    // Abrir pipe para lectura
-    fd = open(pipe_name, O_RDONLY);
+    int fd = open(pipe_name, O_RDONLY);
     if (fd == -1) {
         perror("Error abriendo pipe");
         exit(1);
     }
 
-    // Inicializar sincronización
     sem_init(&empty, 0, N);
     sem_init(&full, 0, 0);
     pthread_mutex_init(&mutex, NULL);
 
-    // Crear hilos
     pthread_t aux_thread, consola_thread;
     pthread_create(&aux_thread, NULL, hilo_auxiliar, NULL);
     pthread_create(&consola_thread, NULL, hilo_consola, NULL);
 
-    // Leer del pipe y procesar línea por línea
     while (!terminar && read(fd, linea, sizeof(linea)) > 0) {
         char *line = strtok(linea, "\n");
         while (line != NULL) {
@@ -169,17 +156,14 @@ int main(int argc, char *argv[]) {
         memset(linea, 0, sizeof(linea));
     }
 
-    // Esperar fin de hilos
     pthread_join(aux_thread, NULL);
     pthread_join(consola_thread, NULL);
 
-    // Guardar base de datos si se especificó
     if (archivoSalida) {
         guardar_base_datos(archivoSalida);
         printf("[RP] Base de datos guardada en %s\n", archivoSalida);
     }
 
-    // Limpiar
     close(fd);
     sem_destroy(&empty);
     sem_destroy(&full);
