@@ -50,16 +50,17 @@ char* fecha_actual() {
 int cargar_base_datos(const char *archivo) {
     FILE *f = fopen(archivo, "r");
     if (!f) return -1;
-    total_libros = 0;
 
+    total_libros = 0;
     while (!feof(f)) {
         Libro *libro = &biblioteca[total_libros];
         if (fscanf(f, " %[^\n],%d,%d\n", libro->nombre, &libro->isbn, &libro->cantidad) != 3)
             break;
+
         for (int i = 0; i < libro->cantidad; i++) {
             fscanf(f, "%d,%c,%s\n", &libro->ejemplares[i].numero,
-                                   &libro->ejemplares[i].estado,
-                                   libro->ejemplares[i].fecha);
+                                     &libro->ejemplares[i].estado,
+                                     libro->ejemplares[i].fecha);
         }
         total_libros++;
     }
@@ -70,15 +71,26 @@ int cargar_base_datos(const char *archivo) {
 
 int guardar_base_datos(const char *archivo) {
     FILE *f = fopen(archivo, "w");
-    if (!f) return -1;
+    if (!f) {
+        perror("No se pudo abrir el archivo de salida");
+        return -1;
+    }
+
+    if (total_libros == 0) {
+        printf("[DEBUG] Advertencia: No hay libros cargados para guardar.\n");
+    } else {
+        printf("[DEBUG] Guardando %d libros en %s\n", total_libros, archivo);
+    }
 
     for (int i = 0; i < total_libros; i++) {
         Libro *libro = &biblioteca[i];
         fprintf(f, "%s,%d,%d\n", libro->nombre, libro->isbn, libro->cantidad);
+
         for (int j = 0; j < libro->cantidad; j++) {
-            fprintf(f, "%d,%c,%s\n", libro->ejemplares[j].numero,
-                                     libro->ejemplares[j].estado,
-                                     libro->ejemplares[j].fecha);
+            fprintf(f, "%d,%c,%s\n",
+                libro->ejemplares[j].numero,
+                libro->ejemplares[j].estado,
+                libro->ejemplares[j].fecha);
         }
     }
 
