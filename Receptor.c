@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
     char *pipe_name = NULL;
     int opt;
     int fd;
-    char linea[MAX_LINE]
+    char linea[MAX_LINE];
     char *archivoBD = NULL;
     char *archivoSalida = NULL;
 
