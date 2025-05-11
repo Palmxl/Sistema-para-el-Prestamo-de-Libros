@@ -14,7 +14,6 @@ Descripción:
     Cada solicitud (préstamo, renovación, devolución o salida) es enviada a través de un pipe nominal hacia el receptor.
 ******************************************************/
 
-#include "SistemaDePrestamoDeLibros.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -43,8 +42,10 @@ void menu_interactivo(int fd) {
             break;
         }
 
+        memset(nombre, 0, sizeof(nombre)); // 🧼 Limpieza del buffer
+
         printf("Nombre del libro: ");
-        scanf(" %[^\n]", nombre);
+        scanf(" %[^\n]", nombre); // 📝 Acepta espacios
 
         printf("ISBN: ");
         scanf("%d", &isbn);
@@ -64,12 +65,14 @@ void leer_archivo_y_enviar(const char *archivo, int fd) {
     while (fgets(linea, sizeof(linea), f)) {
         write(fd, linea, strlen(linea));
     }
+
     fclose(f);
 }
 
 int main(int argc, char *argv[]) {
     char *archivo = NULL, *pipe_name = NULL;
     int opt;
+
     while ((opt = getopt(argc, argv, "i:p:")) != -1) {
         if (opt == 'i') archivo = optarg;
         else if (opt == 'p') pipe_name = optarg;
@@ -82,7 +85,7 @@ int main(int argc, char *argv[]) {
 
     int fd = open(pipe_name, O_WRONLY);
     if (fd == -1) {
-        perror("No se puede abrir pipe");
+        perror("No se puede abrir el pipe");
         exit(1);
     }
 
