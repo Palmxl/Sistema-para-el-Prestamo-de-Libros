@@ -52,16 +52,19 @@ int cargar_base_datos(const char *archivo) {
     if (!f) return -1;
 
     total_libros = 0;
+
     while (!feof(f)) {
         Libro *libro = &biblioteca[total_libros];
         if (fscanf(f, " %[^\n],%d,%d\n", libro->nombre, &libro->isbn, &libro->cantidad) != 3)
             break;
 
         for (int i = 0; i < libro->cantidad; i++) {
-            fscanf(f, "%d,%c,%s\n", &libro->ejemplares[i].numero,
-                                     &libro->ejemplares[i].estado,
-                                     libro->ejemplares[i].fecha);
+            fscanf(f, "%d,%c,%s\n",
+                   &libro->ejemplares[i].numero,
+                   &libro->ejemplares[i].estado,
+                   libro->ejemplares[i].fecha);
         }
+
         total_libros++;
     }
 
@@ -121,6 +124,8 @@ int prestar_libro(int isbn) {
             return 1;
         }
     }
+
+    printf("[DB] No hay ejemplares disponibles para %s\n", libro->nombre);
     return 0;
 }
 
