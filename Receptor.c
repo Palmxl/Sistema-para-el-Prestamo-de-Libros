@@ -52,11 +52,10 @@ void procesar_peticion(Peticion p) {
 
 void* hilo_auxiliar(void* arg) {
     while (1) {
-        if (terminar && sem_trywait(&full) != 0) {
-            break; // salir si ya no hay peticiones pendientes
-        }
-
         sem_wait(&full);
+        
+        if (terminar && in == out) break;
+
         pthread_mutex_lock(&mutex);
         Peticion p = buffer[out];
         out = (out + 1) % N;
@@ -112,6 +111,7 @@ void procesar_linea(char* linea) {
     } else if (p.tipo == 'Q') {
         printf("[RP] PS indica salida\n");
         terminar = 1;
+        sem_post(&full);  // fuerza al hilo auxiliar a salir si está bloqueado
     }
 }
 
