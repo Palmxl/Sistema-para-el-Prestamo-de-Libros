@@ -51,10 +51,8 @@ void procesar_peticion(Peticion p) {
 }
 
 void* hilo_auxiliar(void* arg) {
-    while (1) {
+    while (!terminar) {
         sem_wait(&full);
-        
-        if (terminar && in == out) break;
 
         pthread_mutex_lock(&mutex);
         Peticion p = buffer[out];
@@ -111,7 +109,6 @@ void procesar_linea(char* linea) {
     } else if (p.tipo == 'Q') {
         printf("[RP] PS indica salida\n");
         terminar = 1;
-        sem_post(&full);  // fuerza al hilo auxiliar a salir si está bloqueado
     }
 }
 
@@ -170,7 +167,9 @@ int main(int argc, char *argv[]) {
     }
 
     // Esperar que los hilos terminen
-    pthread_join(aux_thread, NULL);
+    if (in != out) {
+        pthread_join(aux_thread, NULL);
+    }
     pthread_join(consola_thread, NULL);
 
     // Guardar base de datos final
