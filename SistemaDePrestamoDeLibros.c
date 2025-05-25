@@ -100,12 +100,15 @@ int guardar_base_datos(const char *archivo) {
 
 Libro* buscar_libro(int isbn) {
     for (int i = 0; i < total_libros; i++) {
+        printf("[DEBUG] Revisando libro: %s, ISBN=%d\n", biblioteca[i].nombre, biblioteca[i].isbn);
         if (biblioteca[i].isbn == isbn) return &biblioteca[i];
     }
     return NULL;
 }
 
+
 int prestar_libro(int isbn) {
+     printf("[DEBUG] Buscando ISBN %d en biblioteca...\n", isbn);
     Libro *libro = buscar_libro(isbn);
     if (!libro) {
         printf("[DB] Error: No se encontró el libro con ISBN %d\n", isbn);
