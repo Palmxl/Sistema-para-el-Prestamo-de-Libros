@@ -102,6 +102,7 @@ void procesar_linea(char* linea) {
             printf("[RP] El libro con ISBN %d está agotado\n", p.isbn);
         } else {
             printf("[RP] Procesando préstamo de %s\n", p.libro);
+            printf("[RP] Préstamo realizado con éxito (ISBN %d)\n", p.isbn);
         }
     } else if (p.tipo == 'Q') {
         printf("[RP] PS indica salida\n");
