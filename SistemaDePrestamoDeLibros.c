@@ -49,14 +49,20 @@ char* fecha_actual() {
 
 int cargar_base_datos(const char *archivo) {
     FILE *f = fopen(archivo, "r");
-    if (!f) return -1;
+    if (!f) {
+        perror("Error abriendo archivo de base de datos");
+        return -1;
+    }
 
     total_libros = 0;
 
     while (!feof(f)) {
         Libro *libro = &biblioteca[total_libros];
-        if (fscanf(f, " %[^\n],%d,%d\n", libro->nombre, &libro->isbn, &libro->cantidad) != 3)
-            break;
+
+        // Leer línea del libro: nombre, ISBN y cantidad
+        if (fscanf(f, " %[^\n],%d,%d\n", libro->nombre, &libro->isbn, &libro->cantidad) != 3) {
+            break;  // no se pudo leer una línea completa de encabezado
+        }
 
         for (int i = 0; i < libro->cantidad; i++) {
             fscanf(f, "%d,%c,%s\n",
