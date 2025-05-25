@@ -55,20 +55,25 @@ int cargar_base_datos(const char *archivo) {
     }
 
     total_libros = 0;
+    char linea[256];
 
-    while (!feof(f)) {
+    while (fgets(linea, sizeof(linea), f)) {
         Libro *libro = &biblioteca[total_libros];
 
-        // Leer línea del libro: nombre, ISBN y cantidad
-        if (fscanf(f, " %[^\n],%d,%d\n", libro->nombre, &libro->isbn, &libro->cantidad) != 3) {
-            break;  // no se pudo leer una línea completa de encabezado
+        // Leer encabezado del libro
+        if (sscanf(linea, " %[^,],%d,%d", libro->nombre, &libro->isbn, &libro->cantidad) != 3) {
+            continue;
         }
 
+        printf("[DEBUG] Libro cargado: %s, ISBN=%d, ejemplares=%d\n", libro->nombre, libro->isbn, libro->cantidad);
+
         for (int i = 0; i < libro->cantidad; i++) {
-            fscanf(f, "%d,%c,%s\n",
-                   &libro->ejemplares[i].numero,
-                   &libro->ejemplares[i].estado,
-                   libro->ejemplares[i].fecha);
+            if (fgets(linea, sizeof(linea), f)) {
+                sscanf(linea, "%d,%c,%s",
+                       &libro->ejemplares[i].numero,
+                       &libro->ejemplares[i].estado,
+                       libro->ejemplares[i].fecha);
+            }
         }
 
         total_libros++;
