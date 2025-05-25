@@ -42,10 +42,10 @@ void menu_interactivo(int fd) {
             break;
         }
 
-        memset(nombre, 0, sizeof(nombre)); // 🧼 Limpieza del buffer
+        memset(nombre, 0, sizeof(nombre)); // Limpieza del buffer
 
         printf("Nombre del libro: ");
-        scanf(" %[^\n]", nombre); // 📝 Acepta espacios
+        scanf(" %[^\n]", nombre); // Acepta espacios
 
         printf("ISBN: ");
         scanf("%d", &isbn);

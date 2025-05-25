@@ -51,13 +51,18 @@ void procesar_peticion(Peticion p) {
 }
 
 void* hilo_auxiliar(void* arg) {
-    while (!terminar || sem_trywait(&full) == 0) {
-        if (!terminar) sem_wait(&full);
+    while (1) {
+        if (terminar && sem_trywait(&full) != 0) {
+            break; // salir si ya no hay peticiones pendientes
+        }
+
+        sem_wait(&full);
         pthread_mutex_lock(&mutex);
         Peticion p = buffer[out];
         out = (out + 1) % N;
         pthread_mutex_unlock(&mutex);
         sem_post(&empty);
+
         procesar_peticion(p);
     }
     return NULL;
