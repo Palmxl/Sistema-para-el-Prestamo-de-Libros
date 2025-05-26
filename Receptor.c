@@ -55,7 +55,7 @@ void procesar_peticion(Peticion p) {
         Libro* libro = buscar_libro(p.isbn);
         int r = renovar_libro(p.isbn);
         if (r != -1 && libro) {
-             printf("[RP] Renovación realizada (ISBN %d), nueva fecha: %s\n", p.isbn, libro->ejemplares[idx].fecha);
+             printf("[RP] Renovación realizada (ISBN %d), nueva fecha: %s\n", p.isbn, libro->ejemplares[r].fecha);
         } else {
             printf("[RP] No se pudo renovar el libro (ISBN %d)\n", p.isbn);
         }
