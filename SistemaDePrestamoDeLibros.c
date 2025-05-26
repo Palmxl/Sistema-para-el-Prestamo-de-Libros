@@ -156,8 +156,8 @@ int renovar_libro(int isbn) {
     for (int i = 0; i < libro->cantidad; i++) {
         if (libro->ejemplares[i].estado == 'P') {
             strcpy(libro->ejemplares[i].fecha, fecha_mas_7_dias());
-            return 1;
+            return i;
         }
     }
-    return 0;
+    return -1;
 }
