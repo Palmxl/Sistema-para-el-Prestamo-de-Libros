@@ -23,19 +23,6 @@ Descripción:
 #define MAX_LIBROS 100
 #define MAX_EJEMPLARES 10
 
-typedef struct {
-    int numero;
-    char estado;
-    char fecha[11];
-} Ejemplar;
-
-typedef struct {
-    char nombre[100];
-    int isbn;
-    int cantidad;
-    Ejemplar ejemplares[MAX_EJEMPLARES];
-} Libro;
-
 Libro biblioteca[MAX_LIBROS];
 int total_libros = 0;
 
