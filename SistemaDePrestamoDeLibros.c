@@ -39,13 +39,13 @@ typedef struct {
 Libro biblioteca[MAX_LIBROS];
 int total_libros = 0;
 
-/*char* fecha_actual() {
+char* fecha_actual() {
     static char fecha[11];
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
     snprintf(fecha, sizeof(fecha), "%02d-%02d-%04d", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900);
     return fecha;
-}*/
+}
 
 char* fecha_mas_7_dias() {
     static char fecha[11];
