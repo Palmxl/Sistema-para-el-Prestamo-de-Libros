@@ -17,16 +17,6 @@ Descripción:
 #ifndef SISTEMA_PRESTAMO_H
 #define SISTEMA_PRESTAMO_H
 
-int cargar_base_datos(const char *archivo);
-int guardar_base_datos(const char *archivo);
-int prestar_libro(int isbn);
-int devolver_libro(int isbn);
-int renovar_libro(int isbn);
-Libro* buscar_libro(int isbn);
-char* fecha_actual();
-char* fecha_mas_7_dias();
-extern int total_libros;
-
 typedef struct {
     int numero;
     char estado;
@@ -39,5 +29,15 @@ typedef struct {
     int cantidad;
     Ejemplar ejemplares[10];  // o el valor que uses
 } Libro;
+
+int cargar_base_datos(const char *archivo);
+int guardar_base_datos(const char *archivo);
+int prestar_libro(int isbn);
+int devolver_libro(int isbn);
+int renovar_libro(int isbn);
+Libro* buscar_libro(int isbn);
+char* fecha_actual();
+char* fecha_mas_7_dias();
+extern int total_libros;
 
 #endif
