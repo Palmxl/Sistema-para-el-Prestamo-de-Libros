@@ -42,11 +42,21 @@ int terminar = 0;
 
 void procesar_peticion(Peticion p) {
     if (p.tipo == 'D') {
-        printf("[DB] Procesando D - %s (%d)\n", p.libro, p.isbn);
-        devolver_libro(p.isbn);
+        printf("[DB] Procesando devolución - %s (%d)\n", p.libro, p.isbn);
+        int r = devolver_libro(p.isbn);
+        if (r == 1) {
+            printf("[RP] Devolución realizada con éxito (ISBN %d)\n", p.isbn);
+        } else {
+            printf("[RP] No se pudo devolver el libro (ISBN %d)\n", p.isbn);
+        }
     } else if (p.tipo == 'R') {
-        printf("[DB] Procesando R - %s (%d)\n", p.libro, p.isbn);
-        renovar_libro(p.isbn);
+        printf("[DB] Procesando renovación - %s (%d)\n", p.libro, p.isbn);
+        int r = renovar_libro(p.isbn);
+        if (r == 1) {
+            printf("[RP] Renovación realizada con éxito (ISBN %d)\n", p.isbn);
+        } else {
+            printf("[RP] No se pudo renovar el libro (ISBN %d)\n", p.isbn);
+        }
     }
 }
 
