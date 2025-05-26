@@ -22,6 +22,22 @@ int guardar_base_datos(const char *archivo);
 int prestar_libro(int isbn);
 int devolver_libro(int isbn);
 int renovar_libro(int isbn);
+Libro* buscar_libro(int isbn);
+char* fecha_actual();
+char* fecha_mas_7_dias();
 extern int total_libros;
+
+typedef struct {
+    int numero;
+    char estado;
+    char fecha[11];
+} Ejemplar;
+
+typedef struct {
+    char nombre[100];
+    int isbn;
+    int cantidad;
+    Ejemplar ejemplares[10];  // o el valor que uses
+} Libro;
 
 #endif
