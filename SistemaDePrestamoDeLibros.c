@@ -39,13 +39,23 @@ typedef struct {
 Libro biblioteca[MAX_LIBROS];
 int total_libros = 0;
 
-char* fecha_actual() {
+/*char* fecha_actual() {
     static char fecha[11];
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
     snprintf(fecha, sizeof(fecha), "%02d-%02d-%04d", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900);
     return fecha;
+}*/
+
+char* fecha_mas_7_dias() {
+    static char fecha[11];
+    time_t t = time(NULL);
+    t += 7 * 24 * 60 * 60;  // sumar 7 días en segundos
+    struct tm tm = *localtime(&t);
+    snprintf(fecha, sizeof(fecha), "%02d-%02d-%04d", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900);
+    return fecha;
 }
+
 
 int cargar_base_datos(const char *archivo) {
     FILE *f = fopen(archivo, "r");
@@ -158,7 +168,7 @@ int renovar_libro(int isbn) {
     if (!libro) return -1;
     for (int i = 0; i < libro->cantidad; i++) {
         if (libro->ejemplares[i].estado == 'P') {
-            strcpy(libro->ejemplares[i].fecha, fecha_actual());
+            strcpy(libro->ejemplares[i].fecha, fecha_mas_7_dias());
             return 1;
         }
     }

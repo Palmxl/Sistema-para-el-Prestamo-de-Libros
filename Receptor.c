@@ -49,11 +49,18 @@ void procesar_peticion(Peticion p) {
         } else {
             printf("[RP] No se pudo devolver el libro (ISBN %d)\n", p.isbn);
         }
-    } else if (p.tipo == 'R') {
+    }
+    else if (p.tipo == 'R') {
         printf("[DB] Procesando renovación - %s (%d)\n", p.libro, p.isbn);
+        Libro* libro = buscar_libro(p.isbn);
         int r = renovar_libro(p.isbn);
-        if (r == 1) {
-            printf("[RP] Renovación realizada con éxito (ISBN %d)\n", p.isbn);
+        if (r == 1 && libro) {
+            for (int i = 0; i < libro->cantidad; i++) {
+                if (libro->ejemplares[i].estado == 'P') {
+                    printf("[RP] Renovación realizada (ISBN %d), nueva fecha: %s\n", p.isbn, libro->ejemplares[i].fecha);
+                    break;
+                }
+            }
         } else {
             printf("[RP] No se pudo renovar el libro (ISBN %d)\n", p.isbn);
         }
