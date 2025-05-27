@@ -24,22 +24,25 @@ Descripción:
 #include "SistemaDePrestamoDeLibros.h"
 
 #define MAX_LINE 256
-#define N 10
+#define N 10 // Tamaño del buffer circular
 
+// Estructura que representa una petición del proceso solicitante
 typedef struct {
     char tipo;
     char libro[100];
     int isbn;
 } Peticion;
 
+// Variables globales para el buffer circular y sincronización
 Peticion buffer[N];
 int in = 0, out = 0;
 sem_t empty, full;
 pthread_mutex_t mutex;
 
-int verbose = 0;
-int terminar = 0;
+int verbose = 0; // Modo detallado de salida
+int terminar = 0; // Bandera para finalizar el receptor
 
+// Procesa una petición del tipo devolución (D) o renovación (R)
 void procesar_peticion(Peticion p) {
     if (p.tipo == 'D') {
         printf("[DB] Procesando devolución - %s (%d)\n", p.libro, p.isbn);
@@ -62,21 +65,23 @@ void procesar_peticion(Peticion p) {
     }
 }
 
+// Hilo encargado de procesar solicitudes desde el buffer circular (R o D)
 void* hilo_auxiliar(void* arg) {
     while (!terminar) {
-        sem_wait(&full);
+        sem_wait(&full); // Espera que haya una solicitud en el buffer
 
         pthread_mutex_lock(&mutex);
         Peticion p = buffer[out];
         out = (out + 1) % N;
         pthread_mutex_unlock(&mutex);
-        sem_post(&empty);
+        sem_post(&empty); // Libera espacio en el buffer
 
         procesar_peticion(p);
     }
     return NULL;
 }
 
+// Hilo que permite cerrar el sistema con 's' o mostrar un reporte simulado con 'r'
 void* hilo_consola(void* arg) {
     char comando;
     while (!terminar) {
@@ -90,6 +95,7 @@ void* hilo_consola(void* arg) {
     return NULL;
 }
 
+// Inserta una petición en el buffer circular
 void publicar_en_buffer(Peticion p) {
     sem_wait(&empty);
     pthread_mutex_lock(&mutex);
@@ -99,6 +105,7 @@ void publicar_en_buffer(Peticion p) {
     sem_post(&full);
 }
 
+// Interpreta la línea de texto recibida y actúa según el tipo de operación
 void procesar_linea(char* linea) {
     Peticion p;
     sscanf(linea, " %c,%[^,],%d", &p.tipo, p.libro, &p.isbn);
@@ -129,6 +136,7 @@ int main(int argc, char *argv[]) {
     int opt;
     char linea[MAX_LINE];
 
+    // Procesar los argumentos de línea de comandos
     while ((opt = getopt(argc, argv, "p:f:s:v")) != -1) {
         switch (opt) {
             case 'p': pipe_name = optarg; break;
@@ -138,6 +146,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    // Validar argumentos obligatorios
     if (!pipe_name || !archivoBD) {
         fprintf(stderr, "Uso: %s -p pipe -f archivoBD [-v] [-s archivoSalida]\n", argv[0]);
         exit(1);
@@ -151,24 +160,24 @@ int main(int argc, char *argv[]) {
         printf("[DEBUG] Se cargaron %d libros desde la base de datos (%s)\n", total_libros, archivoBD);
     }
 
-    // Abrir pipe
+    // Abrir el pipe en modo lectura
     int fd = open(pipe_name, O_RDONLY);
     if (fd == -1) {
         perror("Error abriendo pipe");
         exit(1);
     }
 
-    // Inicializar sincronización
+    // Inicializar semáforos y mutex
     sem_init(&empty, 0, N);
     sem_init(&full, 0, 0);
     pthread_mutex_init(&mutex, NULL);
 
-    // Crear hilos
+    // Crear hilos para consola y buffer
     pthread_t aux_thread, consola_thread;
     pthread_create(&aux_thread, NULL, hilo_auxiliar, NULL);
     pthread_create(&consola_thread, NULL, hilo_consola, NULL);
 
-    // Leer solicitudes desde el pipe
+    // Bucle principal: leer del pipe y procesar líneas
     while (!terminar && read(fd, linea, sizeof(linea)) > 0) {
         char *line = strtok(linea, "\n");
         while (line != NULL) {
@@ -190,7 +199,7 @@ int main(int argc, char *argv[]) {
         printf("[RP] Base de datos guardada en %s\n", archivoSalida);
     }
 
-    // Limpieza final
+    // Libera recursos
     close(fd);
     sem_destroy(&empty);
     sem_destroy(&full);

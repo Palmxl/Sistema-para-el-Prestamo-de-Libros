@@ -26,6 +26,7 @@ Descripción:
 Libro biblioteca[MAX_LIBROS];
 int total_libros = 0;
 
+// Devuelve la fecha actual formateada como dd-mm-aaaa
 char* fecha_actual() {
     static char fecha[11];
     time_t t = time(NULL);
@@ -34,6 +35,7 @@ char* fecha_actual() {
     return fecha;
 }
 
+// Devuelve la fecha actual + 7 días, usada para renovaciones
 char* fecha_mas_7_dias() {
     static char fecha[11];
     time_t t = time(NULL);
@@ -43,7 +45,7 @@ char* fecha_mas_7_dias() {
     return fecha;
 }
 
-
+// Carga los libros y ejemplares desde el archivo de texto
 int cargar_base_datos(const char *archivo) {
     FILE *f = fopen(archivo, "r");
     if (!f) {
@@ -57,13 +59,14 @@ int cargar_base_datos(const char *archivo) {
     while (fgets(linea, sizeof(linea), f)) {
         Libro *libro = &biblioteca[total_libros];
 
-        // Leer encabezado del libro
+        // Leer encabezado del libro: nombre, ISBN, cantidad
         if (sscanf(linea, " %[^,],%d,%d", libro->nombre, &libro->isbn, &libro->cantidad) != 3) {
             continue;
         }
 
         printf("[DEBUG] Libro cargado: %s, ISBN=%d, ejemplares=%d\n", libro->nombre, libro->isbn, libro->cantidad);
 
+        // Leer ejemplares del libro
         for (int i = 0; i < libro->cantidad; i++) {
             if (fgets(linea, sizeof(linea), f)) {
                 sscanf(linea, "%d,%c,%s",
@@ -80,6 +83,7 @@ int cargar_base_datos(const char *archivo) {
     return 0;
 }
 
+// Guarda el estado actual de la base de datos en un archivo
 int guardar_base_datos(const char *archivo) {
     FILE *f = fopen(archivo, "w");
     if (!f) {
@@ -93,6 +97,7 @@ int guardar_base_datos(const char *archivo) {
         printf("[DEBUG] Guardando %d libros en %s\n", total_libros, archivo);
     }
 
+    // Escribir encabezados y ejemplares por libro
     for (int i = 0; i < total_libros; i++) {
         Libro *libro = &biblioteca[i];
         fprintf(f, "%s,%d,%d\n", libro->nombre, libro->isbn, libro->cantidad);
@@ -109,6 +114,7 @@ int guardar_base_datos(const char *archivo) {
     return 0;
 }
 
+// Busca un libro en la base por su ISBN
 Libro* buscar_libro(int isbn) {
     for (int i = 0; i < total_libros; i++) {
         printf("[DEBUG] Revisando libro: %s, ISBN=%d\n", biblioteca[i].nombre, biblioteca[i].isbn);
@@ -117,7 +123,7 @@ Libro* buscar_libro(int isbn) {
     return NULL;
 }
 
-
+// Registra el préstamo de un ejemplar disponible
 int prestar_libro(int isbn) {
      printf("[DEBUG] Buscando ISBN %d en biblioteca...\n", isbn);
     Libro *libro = buscar_libro(isbn);
@@ -137,6 +143,7 @@ int prestar_libro(int isbn) {
     return 0;
 }
 
+// Registra la devolución de un ejemplar prestado
 int devolver_libro(int isbn) {
     Libro *libro = buscar_libro(isbn);
     if (!libro) return -1;
@@ -150,6 +157,7 @@ int devolver_libro(int isbn) {
     return 0;
 }
 
+// Renueva un ejemplar prestado (extiende la fecha 7 días)
 int renovar_libro(int isbn) {
     Libro *libro = buscar_libro(isbn);
     if (!libro) return -1;

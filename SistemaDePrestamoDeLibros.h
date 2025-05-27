@@ -27,7 +27,7 @@ typedef struct {
     char nombre[100];
     int isbn;
     int cantidad;
-    Ejemplar ejemplares[10];  // o el valor que uses
+    Ejemplar ejemplares[10];
 } Libro;
 
 int cargar_base_datos(const char *archivo);
